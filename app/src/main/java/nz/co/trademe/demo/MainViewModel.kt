@@ -1,21 +1,27 @@
 package nz.co.trademe.demo
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.processors.FlowableProcessor
+import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    private val _liveState = MutableLiveData<MainState>()
-    val liveState: LiveData<MainState>
-        get() = _liveState
+    private val events: FlowableProcessor<MainEvent> = PublishProcessor.create()
+    private val state: FlowableProcessor<MainState> = BehaviorProcessor.create()
+
+    val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(state)
+
+    private val disposable = events
+        .scan(MainState(10), { state, event -> state.reduce(event) })
+        .subscribe { state.onNext(it) }
 
     init {
-        _liveState.value = MainState(10)
-
         viewModelScope.launch {
             while (true) {
                 delay(1000)
@@ -24,15 +30,16 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        disposable.dispose()
+    }
+
     fun increment() {
-        _liveState.value?.let {
-            _liveState.value = it.reduce(MainEvent.Increment)
-        }
+        events.onNext(MainEvent.Increment)
     }
 
     private fun decrement() {
-        _liveState.value?.let {
-            _liveState.value = it.reduce(MainEvent.Decrement)
-        }
+        events.onNext(MainEvent.Decrement)
     }
 }
