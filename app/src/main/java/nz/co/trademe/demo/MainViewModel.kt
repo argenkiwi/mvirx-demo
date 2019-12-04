@@ -3,12 +3,12 @@ package nz.co.trademe.demo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
@@ -17,18 +17,15 @@ class MainViewModel : ViewModel() {
 
     val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(state)
 
-    private val disposable = events
-        .scan(MainState(10), { state, event -> state.reduce(event) })
-        .subscribe { state.onNext(it) }
-
-    init {
-        viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                decrement()
-            }
-        }
-    }
+    private val disposable = CompositeDisposable(
+        events
+            .scan(MainState(10), { state, event -> state.reduce(event) })
+            .subscribe { state.onNext(it) },
+        Observable
+            .timer(1000, TimeUnit.MILLISECONDS)
+            .repeat()
+            .subscribe { decrement() }
+    )
 
     override fun onCleared() {
         super.onCleared()
