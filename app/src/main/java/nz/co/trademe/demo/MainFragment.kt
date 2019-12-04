@@ -21,8 +21,8 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.liveState.observe(this, Observer { time ->
-            timerTextView.text = "$time"
+        viewModel.liveState.observe(this, Observer { state ->
+            timerTextView.text = "${state.time}"
         })
 
         incrementButton.setOnClickListener {
