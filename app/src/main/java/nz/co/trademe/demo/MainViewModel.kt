@@ -20,4 +20,12 @@ class MainViewModel : ViewModel() {
     fun increment() {
         model.events.onNext(MainEvent.Increment)
     }
+
+    fun resume() {
+        model.events.onNext(MainEvent.Resume)
+    }
+
+    fun pause() {
+        model.events.onNext(MainEvent.Pause)
+    }
 }

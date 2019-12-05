@@ -23,6 +23,16 @@ class MainFragment : Fragment() {
 
         viewModel.liveState.observe(this, Observer { state ->
             timerTextView.text = "${state.time}"
+            when {
+                state.paused -> {
+                    toggleButton.text = getText(R.string.resume)
+                    toggleButton.setOnClickListener { viewModel.resume() }
+                }
+                else -> {
+                    toggleButton.text = getText(R.string.pause)
+                    toggleButton.setOnClickListener { viewModel.pause() }
+                }
+            }
         })
 
         incrementButton.setOnClickListener {
