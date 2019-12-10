@@ -3,4 +3,6 @@
     <string name="increment">Increment</string>
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
+    <string name="countdown_paused">Countdown paused.</string>
+    <string name="countdown_resumed">Countdown resumed.</string>
 </resources>

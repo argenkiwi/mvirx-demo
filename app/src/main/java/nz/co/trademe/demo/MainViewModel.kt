@@ -8,6 +8,8 @@ class MainViewModel : ViewModel() {
 
     private val model = MainModel()
 
+    val liveEvents: LiveData<MainEvent>
+        get() = LiveDataReactiveStreams.fromPublisher(model.events)
     val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(model.state)
 
     private val disposable = model.subscribe()

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -20,6 +21,13 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.liveEvents.observe(this, Observer { event ->
+            when (event) {
+                MainEvent.Pause -> Toast.makeText(context, R.string.countdown_paused, Toast.LENGTH_SHORT).show()
+                MainEvent.Resume -> Toast.makeText(context, R.string.countdown_resumed, Toast.LENGTH_SHORT).show()
+            }
+        })
 
         viewModel.liveState.observe(this, Observer { state ->
             timerTextView.text = "${state.time}"
