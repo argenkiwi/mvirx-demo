@@ -1,11 +1,7 @@
 package nz.co.trademe.demo
 
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.max
 
 sealed class MainEvent {
@@ -16,6 +12,7 @@ sealed class MainEvent {
 }
 
 data class MainState(val time: Int, val paused: Boolean = false) {
+
     fun reduce(event: MainEvent) = when (event) {
         is MainEvent.Increment -> copy(time = time + 1)
         is MainEvent.Decrement -> when {
@@ -28,17 +25,6 @@ data class MainState(val time: Int, val paused: Boolean = false) {
 }
 
 class MainModel {
-
-    val events: FlowableProcessor<MainEvent> = PublishProcessor.create()
-    val state: FlowableProcessor<MainState> = BehaviorProcessor.create()
-
-    fun subscribe() = CompositeDisposable(
-        events
-            .scan(MainState(10), { state, event -> state.reduce(event) })
-            .subscribe { state.onNext(it) },
-        Observable
-            .timer(1000, TimeUnit.MILLISECONDS)
-            .repeat()
-            .subscribe { events.onNext(MainEvent.Decrement) }
-    )
+    val events = MutableSharedFlow<MainEvent>()
+    val state = MutableStateFlow(MainState(10))
 }

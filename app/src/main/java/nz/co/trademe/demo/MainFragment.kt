@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : Fragment() {
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -22,14 +22,14 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.liveEvents.observe(this, Observer { event ->
+        viewModel.liveEvents.observe(viewLifecycleOwner, { event ->
             when (event) {
                 MainEvent.Pause -> Toast.makeText(context, R.string.countdown_paused, Toast.LENGTH_SHORT).show()
                 MainEvent.Resume -> Toast.makeText(context, R.string.countdown_resumed, Toast.LENGTH_SHORT).show()
             }
         })
 
-        viewModel.liveState.observe(this, Observer { state ->
+        viewModel.liveState.observe(viewLifecycleOwner, { state ->
             timerTextView.text = "${state.time}"
             when {
                 state.paused -> {

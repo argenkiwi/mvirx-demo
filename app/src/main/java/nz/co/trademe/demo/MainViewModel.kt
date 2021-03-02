@@ -1,33 +1,57 @@
 package nz.co.trademe.demo
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
     private val model = MainModel()
 
     val liveEvents: LiveData<MainEvent>
-        get() = LiveDataReactiveStreams.fromPublisher(model.events)
-    val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(model.state)
+        get() = model.events.asLiveData()
 
-    private val disposable = model.subscribe()
+    val liveState: LiveData<MainState> = model.state.asLiveData()
 
-    override fun onCleared() {
-        super.onCleared()
-        disposable.dispose()
+    init {
+        viewModelScope.launch {
+            with(model) {
+                events.collect {
+                    state.value = state.value.reduce(it)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            with(model) {
+                while(true) {
+                    delay(1000)
+                    events.emit(MainEvent.Decrement)
+                }
+            }
+        }
     }
 
     fun increment() {
-        model.events.onNext(MainEvent.Increment)
+        viewModelScope.launch {
+            model.events.emit(MainEvent.Increment)
+        }
     }
 
     fun resume() {
-        model.events.onNext(MainEvent.Resume)
+        viewModelScope.launch {
+            model.events.emit(MainEvent.Resume)
+        }
     }
 
     fun pause() {
-        model.events.onNext(MainEvent.Pause)
+        viewModelScope.launch {
+            model.events.emit(MainEvent.Pause)
+        }
     }
 }
