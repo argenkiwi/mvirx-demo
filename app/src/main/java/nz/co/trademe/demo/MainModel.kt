@@ -1,7 +1,5 @@
 package nz.co.trademe.demo
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.max
 
 sealed class MainEvent {
@@ -22,9 +20,4 @@ data class MainState(val time: Int, val paused: Boolean = false) {
         is MainEvent.Pause -> copy(paused = true)
         is MainEvent.Resume -> copy(paused = false)
     }
-}
-
-class MainModel {
-    val events = MutableSharedFlow<MainEvent>()
-    val state = MutableStateFlow(MainState(10))
 }
