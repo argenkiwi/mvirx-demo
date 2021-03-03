@@ -22,29 +22,37 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.liveEvents.observe(viewLifecycleOwner, { event ->
+        viewModel.liveEvents.observe(viewLifecycleOwner) { event ->
             when (event) {
-                MainEvent.Pause -> Toast.makeText(context, R.string.countdown_paused, Toast.LENGTH_SHORT).show()
-                MainEvent.Resume -> Toast.makeText(context, R.string.countdown_resumed, Toast.LENGTH_SHORT).show()
+                MainEvent.Pause -> Toast.makeText(
+                    context,
+                    R.string.countdown_paused,
+                    Toast.LENGTH_SHORT
+                ).show()
+                MainEvent.Resume -> Toast.makeText(
+                    context,
+                    R.string.countdown_resumed,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        })
+        }
 
         viewModel.liveState.observe(viewLifecycleOwner, { state ->
             timerTextView.text = "${state.time}"
             when {
                 state.paused -> {
                     toggleButton.text = getText(R.string.resume)
-                    toggleButton.setOnClickListener { viewModel.resume() }
+                    toggleButton.setOnClickListener { viewModel.publish(MainEvent.Resume) }
                 }
                 else -> {
                     toggleButton.text = getText(R.string.pause)
-                    toggleButton.setOnClickListener { viewModel.pause() }
+                    toggleButton.setOnClickListener { viewModel.publish(MainEvent.Pause) }
                 }
             }
         })
 
         incrementButton.setOnClickListener {
-            viewModel.increment()
+            viewModel.publish(MainEvent.Increment)
         }
     }
 }

@@ -9,9 +9,9 @@ sealed class MainEvent {
     object Resume : MainEvent()
 }
 
-data class MainState(val time: Int, val paused: Boolean = false) {
+data class MainState(val time: Int, val paused: Boolean = false) : Reducible<MainState, MainEvent> {
 
-    fun reduce(event: MainEvent) = when (event) {
+    override fun reduce(event: MainEvent) = when (event) {
         is MainEvent.Increment -> copy(time = time + 1)
         is MainEvent.Decrement -> when {
             paused -> this
