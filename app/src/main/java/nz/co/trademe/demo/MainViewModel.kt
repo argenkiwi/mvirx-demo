@@ -3,6 +3,9 @@ package nz.co.trademe.demo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
@@ -10,9 +13,16 @@ class MainViewModel : ViewModel() {
 
     val liveEvents: LiveData<MainEvent>
         get() = LiveDataReactiveStreams.fromPublisher(model.events)
+
     val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(model.state)
 
-    private val disposable = model.subscribe()
+    private val disposable = CompositeDisposable(
+        model.launch(),
+        Flowable
+            .timer(1000, TimeUnit.MILLISECONDS)
+            .repeat()
+            .subscribe { model.publish(MainEvent.Decrement) }
+    )
 
     override fun onCleared() {
         super.onCleared()
@@ -20,14 +30,14 @@ class MainViewModel : ViewModel() {
     }
 
     fun increment() {
-        model.events.onNext(MainEvent.Increment)
+        model.publish(MainEvent.Increment)
     }
 
     fun resume() {
-        model.events.onNext(MainEvent.Resume)
+        model.publish(MainEvent.Resume)
     }
 
     fun pause() {
-        model.events.onNext(MainEvent.Pause)
+        model.publish(MainEvent.Pause)
     }
 }

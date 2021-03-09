@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : Fragment() {
@@ -22,14 +21,22 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.liveEvents.observe(this, Observer { event ->
+        viewModel.liveEvents.observe(viewLifecycleOwner) { event ->
             when (event) {
-                MainEvent.Pause -> Toast.makeText(context, R.string.countdown_paused, Toast.LENGTH_SHORT).show()
-                MainEvent.Resume -> Toast.makeText(context, R.string.countdown_resumed, Toast.LENGTH_SHORT).show()
+                MainEvent.Pause -> Toast.makeText(
+                    context,
+                    R.string.countdown_paused,
+                    Toast.LENGTH_SHORT
+                ).show()
+                MainEvent.Resume -> Toast.makeText(
+                    context,
+                    R.string.countdown_resumed,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        })
+        }
 
-        viewModel.liveState.observe(this, Observer { state ->
+        viewModel.liveState.observe(viewLifecycleOwner) { state ->
             timerTextView.text = "${state.time}"
             when {
                 state.paused -> {
@@ -41,7 +48,7 @@ class MainFragment : Fragment() {
                     toggleButton.setOnClickListener { viewModel.pause() }
                 }
             }
-        })
+        }
 
         incrementButton.setOnClickListener {
             viewModel.increment()
