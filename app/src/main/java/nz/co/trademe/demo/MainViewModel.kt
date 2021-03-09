@@ -1,6 +1,5 @@
 package nz.co.trademe.demo
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
 import io.reactivex.rxjava3.core.Flowable
@@ -11,10 +10,10 @@ class MainViewModel : ViewModel() {
 
     private val model = MainModel()
 
-    val liveEvents: LiveData<MainEvent>
+    val liveEvents
         get() = LiveDataReactiveStreams.fromPublisher(model.events)
 
-    val liveState: LiveData<MainState> = LiveDataReactiveStreams.fromPublisher(model.state)
+    val liveState = LiveDataReactiveStreams.fromPublisher(model.state)
 
     private val disposable = CompositeDisposable(
         model.launch(),
