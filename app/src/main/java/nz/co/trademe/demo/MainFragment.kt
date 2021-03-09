@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : Fragment() {
@@ -37,22 +36,22 @@ class MainFragment : Fragment() {
             }
         }
 
-        viewModel.liveState.observe(viewLifecycleOwner, { state ->
+        viewModel.liveState.observe(viewLifecycleOwner) { state ->
             timerTextView.text = "${state.time}"
             when {
                 state.paused -> {
                     toggleButton.text = getText(R.string.resume)
-                    toggleButton.setOnClickListener { viewModel.publish(MainEvent.Resume) }
+                    toggleButton.setOnClickListener { viewModel.resume() }
                 }
                 else -> {
                     toggleButton.text = getText(R.string.pause)
-                    toggleButton.setOnClickListener { viewModel.publish(MainEvent.Pause) }
+                    toggleButton.setOnClickListener { viewModel.pause() }
                 }
             }
-        })
+        }
 
         incrementButton.setOnClickListener {
-            viewModel.publish(MainEvent.Increment)
+            viewModel.increment()
         }
     }
 }
