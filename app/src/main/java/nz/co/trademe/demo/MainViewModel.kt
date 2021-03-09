@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
-    private val model = MainModel()
+    private val model = MainModel(MainState(10))
 
     val liveEvents
         get() = LiveDataReactiveStreams.fromPublisher(model.events)

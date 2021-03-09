@@ -14,7 +14,7 @@ sealed class MainEvent {
     object Resume : MainEvent()
 }
 
-class MainModel : BaseStateEventModel<MainState, MainEvent>(MainState(10)) {
+class MainModel(initialState: MainState) : BaseStateEventModel<MainState, MainEvent>(initialState) {
 
     override fun reduce(state: MainState, event: MainEvent) = with(state) {
         when (event) {
