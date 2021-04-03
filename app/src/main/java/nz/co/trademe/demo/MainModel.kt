@@ -4,6 +4,18 @@ import kotlin.math.max
 
 object MainModel {
 
+    sealed class Event {
+        object Increment : Event()
+        object Decrement : Event()
+        object Pause : Event()
+        object Resume : Event()
+    }
+
+    data class State(
+        val time: Int,
+        val paused: Boolean = false
+    )
+
     fun reduce(state: State, event: Event) = with(state) {
 
         when (event) {
@@ -16,16 +28,4 @@ object MainModel {
             is Event.Resume -> copy(paused = false)
         }
     }
-
-    sealed class Event {
-        object Increment : Event()
-        object Decrement : Event()
-        object Pause : Event()
-        object Resume : Event()
-    }
-
-    data class State(
-        val time: Int,
-        val paused: Boolean = false
-    )
 }

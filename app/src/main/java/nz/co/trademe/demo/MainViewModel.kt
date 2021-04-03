@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
@@ -19,11 +20,7 @@ class MainViewModel : ViewModel() {
 
         viewModelScope.launch {
 
-            launch {
-                events.scan(MainModel.State(10), MainModel::reduce)
-                    .stateIn(viewModelScope)
-                    .collect { state.value = it }
-            }
+            launch { state.scan(events, MainModel::reduce) }
 
             launch {
                 while (true) {
