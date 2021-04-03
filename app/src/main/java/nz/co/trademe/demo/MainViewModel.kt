@@ -4,35 +4,45 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    private val model = MainModel(MainState(10));
+    private val events = MutableSharedFlow<MainModel.Event>()
+    val liveEvents = events.asLiveData()
 
-    val liveEvents = model.events.asLiveData()
-    val liveState = model.state.asLiveData()
+    private val state = MutableStateFlow(MainModel.State(10))
+    val liveState = state.asLiveData()
 
     init {
-        viewModelScope.launch { model.launch() }
 
         viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                model.publish(MainEvent.Decrement)
+
+            launch {
+                events.scan(MainModel.State(10), MainModel::reduce)
+                    .stateIn(viewModelScope)
+                    .collect { state.value = it }
+            }
+
+            launch {
+                while (true) {
+                    delay(1000)
+                    events.emit(MainModel.Event.Decrement)
+                }
             }
         }
     }
 
     fun resume() {
-        viewModelScope.launch { model.publish(MainEvent.Resume) }
+        viewModelScope.launch { events.emit(MainModel.Event.Resume) }
     }
 
     fun pause() {
-        viewModelScope.launch { model.publish(MainEvent.Pause) }
+        viewModelScope.launch { events.emit(MainModel.Event.Pause) }
     }
 
     fun increment() {
-        viewModelScope.launch { model.publish(MainEvent.Increment) }
+        viewModelScope.launch { events.emit(MainModel.Event.Increment) }
     }
 }

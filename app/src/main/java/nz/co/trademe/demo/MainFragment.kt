@@ -23,12 +23,12 @@ class MainFragment : Fragment() {
 
         viewModel.liveEvents.observe(viewLifecycleOwner) { event ->
             when (event) {
-                MainEvent.Pause -> Toast.makeText(
+                MainModel.Event.Pause -> Toast.makeText(
                     context,
                     R.string.countdown_paused,
                     Toast.LENGTH_SHORT
                 ).show()
-                MainEvent.Resume -> Toast.makeText(
+                MainModel.Event.Resume -> Toast.makeText(
                     context,
                     R.string.countdown_resumed,
                     Toast.LENGTH_SHORT
