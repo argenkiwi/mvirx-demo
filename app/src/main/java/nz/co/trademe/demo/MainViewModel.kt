@@ -16,11 +16,15 @@ class MainViewModel : ViewModel() {
     private val state = MutableStateFlow(MainModel.State(10))
     val liveState = state.asLiveData()
 
+    private val reactor = MainModel.Reactor()
+
     init {
 
         viewModelScope.launch {
 
-            launch { state.scan(events, MainModel::reduce) }
+            launch { events.react(this, reactor::react) }
+
+            launch { state.reduce(events, MainModel::reduce) }
 
             launch {
                 while (true) {
