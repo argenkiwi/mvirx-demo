@@ -2,29 +2,40 @@ package nz.co.trademe.demo
 
 import kotlin.math.max
 
-data class MainState(
-    val time: Int,
-    val paused: Boolean = false
-)
+object MainModel {
 
-sealed class MainEvent {
-    object Increment : MainEvent()
-    object Decrement : MainEvent()
-    object Pause : MainEvent()
-    object Resume : MainEvent()
-}
+    sealed class Event {
+        object Increment : Event()
+        object Decrement : Event()
+        object Pause : Event()
+        object Resume : Event()
+    }
 
-class MainModel(initialState: MainState) : BaseStateEventModel<MainState, MainEvent>(initialState) {
+    data class State(
+        val time: Int,
+        val paused: Boolean = false
+    )
 
-    override fun reduce(state: MainState, event: MainEvent) = with(state) {
+    class Reactor {
+
+        fun react(event: Event): Event? = when (event) {
+            Event.Decrement -> null
+            Event.Increment -> null
+            Event.Pause -> null
+            Event.Resume -> null
+        }
+    }
+
+    fun reduce(state: State, event: Event) = with(state) {
+
         when (event) {
-            is MainEvent.Increment -> copy(time = time + 1)
-            is MainEvent.Decrement -> when {
+            is Event.Increment -> copy(time = time + 1)
+            is Event.Decrement -> when {
                 paused -> this
                 else -> copy(time = max(0, time - 1))
             }
-            is MainEvent.Pause -> copy(paused = true)
-            is MainEvent.Resume -> copy(paused = false)
+            is Event.Pause -> copy(paused = true)
+            is Event.Resume -> copy(paused = false)
         }
     }
 }
