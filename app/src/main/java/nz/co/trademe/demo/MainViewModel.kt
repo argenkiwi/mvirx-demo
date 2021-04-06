@@ -16,16 +16,13 @@ class MainViewModel : ViewModel() {
     private val state = BehaviorProcessor.create<MainModel.State>()
     val liveState = state.toLiveData()
 
-    private val reactor = MainModel.Reactor()
+//    private val reactor = MainModel.Reactor()
 
     private val disposable = CompositeDisposable(
-        events.mapNotNull(reactor::react).subscribe(events::onNext),
-        events
-            .scan(MainModel.State(10), MainModel::reduce)
-            .subscribe { state.onNext(it) },
-        Flowable
-            .timer(1000, TimeUnit.MILLISECONDS)
-            .repeat()
+//        events.mapNotNull(reactor::react).subscribe(events::onNext),
+//        events.withLatestFromNotNull(state, reactor::react).subscribe(events::onNext),
+        events.scan(MainModel.State(10), MainModel::reduce).subscribe(state::onNext),
+        Flowable.timer(1000, TimeUnit.MILLISECONDS).repeat()
             .subscribe { events.onNext(MainModel.Event.Decrement) }
     )
 

@@ -24,6 +24,13 @@ object MainModel {
             Event.Pause -> null
             Event.Resume -> null
         }
+
+        fun react(event: Event, state: State): Event? = when (event) {
+            Event.Decrement -> null
+            Event.Increment -> null
+            Event.Pause -> null
+            Event.Resume -> null
+        }
     }
 
     fun reduce(state: State, event: Event) = with(state) {
