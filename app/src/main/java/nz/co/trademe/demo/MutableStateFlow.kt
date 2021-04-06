@@ -1,10 +1,16 @@
 package nz.co.trademe.demo
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
-suspend fun <S, E> MutableStateFlow<S>.reduce(events: SharedFlow<E>, reduce: (S, E) -> S) {
-    events.map { reduce(value, it) }.collect(::emit)
+fun <S, E> MutableStateFlow<S>.reduceIn(
+    coroutineScope: CoroutineScope,
+    sharedFlow: SharedFlow<E>,
+    reduce: suspend (S, E) -> S
+) {
+    coroutineScope.launch { combine(sharedFlow, reduce).collect(::emit) }
 }

@@ -16,21 +16,18 @@ class MainViewModel : ViewModel() {
     private val state = MutableStateFlow(MainModel.State(10))
     val liveState = state.asLiveData()
 
-    private val reactor = MainModel.Reactor()
+//    private val reactor = MainModel.Reactor()
 
     init {
 
+//        events.reactIn(viewModelScope, reactor::react)
+//        events.reactIn(viewModelScope, state, reactor::react)
+        state.reduceIn(viewModelScope, events, MainModel::reduce)
+
         viewModelScope.launch {
-
-            launch { events.react(this, reactor::react) }
-
-            launch { state.reduce(events, MainModel::reduce) }
-
-            launch {
-                while (true) {
-                    delay(1000)
-                    events.emit(MainModel.Event.Decrement)
-                }
+            while (true) {
+                delay(1000)
+                events.emit(MainModel.Event.Decrement)
             }
         }
     }

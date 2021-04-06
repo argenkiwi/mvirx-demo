@@ -1,11 +1,19 @@
 package nz.co.trademe.demo
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-suspend fun <E> MutableSharedFlow<E>.react(scope: CoroutineScope, react: suspend (E) -> E?) {
-    mapNotNull(react).collect { scope.launch { emit(it) } }
+fun <E> MutableSharedFlow<E>.reactIn(coroutineScope: CoroutineScope, react: suspend (E) -> E?) {
+    coroutineScope.launch { mapNotNull(react).collect { launch { emit(it) } } }
+}
+
+fun <E, S> MutableSharedFlow<E>.reactIn(
+    coroutineScope: CoroutineScope,
+    stateFlow: StateFlow<S>,
+    react: suspend (E, S) -> E?
+) {
+    coroutineScope.launch {
+        combine(stateFlow, react).mapNotNull { it }.collect { launch { emit(it) } }
+    }
 }
